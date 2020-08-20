@@ -1,26 +1,23 @@
 <template>
   <div>
-    <h1>
-      {{name}}
-    </h1>
+    <h1>Hello, world!</h1>
   </div>
 </template>
 
 <script>
-  export default {
-    data: function() {
-      return {
-        name: 'Hello World!',
-      }
-    },
-  };
+export default {
+  name: 'App',
+  data: function() {
+    return {};
+  }
+};
 </script>
 
 <style lang="scss">
-$primary-color: white;
-$bg: black;
-h1 {
-  color: $primary-color;
-  background-color: $bg;
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
 }
 </style>
