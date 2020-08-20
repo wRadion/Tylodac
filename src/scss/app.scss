@@ -19,18 +19,32 @@ body {
   background: $main-bg;
 }
 
-input[type=text] {
+label {
+  color: $label-fg;
+}
+
+input {
   padding: $small-pd;
-  color: $lvl0-fg;
-  background: $lvl0-bg;
-  border: none;
+  border: 1px solid transparent;
   border-radius: $main-br;
+  outline: none;
+}
+
+input:focus {
+  border: 1px solid #FFFFFFAA;
+}
+
+input[type=text] {
+  color: $main-fg;
+  background: $input-bg;
 }
 
 button, input[type=submit] {
-  padding: $small-pd;
   color: $btn-fg;
   background: $btn-bg;
-  border: none;
-  border-radius: $main-br;
+}
+
+button:hover, input[type=submit]:hover {
+  color: $btn-hv-fg;
+  background: $btn-hv-bg;
 }

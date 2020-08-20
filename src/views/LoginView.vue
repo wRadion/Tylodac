@@ -3,7 +3,7 @@
     <img src="/assets/logo.png" />
     <form>
       <label for="username">Username</label>
-      <input id="username" type="text" autofocus>
+      <input id="username" type="text" autocomplete="off" autofocus>
       <input id="login" type="submit" v-on:click.prevent='login' value="Login">
     </form>
   </div>
@@ -21,11 +21,12 @@ export default {
 <style lang="scss" scoped>
 @import '/scss/variables.scss';
 
-$width: 450px;
+$width: 460px;
 
 #wrapper {
   width: $width;
   margin: auto;
+  margin-top: 200px;
   text-align: center;
 }
 
