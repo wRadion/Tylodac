@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "keywords": [],
-  "author": "",
+  "author": "wRadion",
   "license": "ISC",
   "scripts": {
     "clean": "rm dist/bundle.js",
@@ -12,10 +12,13 @@
     "build-prod": "parcel build src/index.html"
   },
   "dependencies": {
+    "express": "^4.17.1",
     "scss": "^0.2.4",
+    "socketio": "^1.0.0",
     "vue": "^2.6.11",
     "vue-hot-reload-api": "^2.3.4",
-    "vue-router": "^3.4.3"
+    "vue-router": "^3.4.3",
+    "vue-socket.io": "^3.0.10"
   },
   "devDependencies": {
     "@vue/component-compiler-utils": "^3.2.0",
