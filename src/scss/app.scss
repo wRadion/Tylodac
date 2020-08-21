@@ -44,7 +44,21 @@ button, input[type=submit] {
   background: $btn-bg;
 }
 
-button:hover, input[type=submit]:hover {
+button:not([disabled]):hover, input[type=submit]:not([disabled]):hover {
   color: $btn-hv-fg;
   background: $btn-hv-bg;
+}
+
+input[disabled] {
+  opacity: 50%;
+}
+
+input.error, button.error {
+  border: 1px solid red;
+}
+
+.error-message {
+  margin-top: 12px;
+  color: red;
+  font-size: 14px;
 }
