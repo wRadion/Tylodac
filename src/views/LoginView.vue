@@ -4,21 +4,24 @@
     <form @submit.prevent="login">
       <label for="username">Username</label>
       <input id="username"
-             v-bind:class="{ error: this.hasError }"
              v-model.trim="username"
+             v-bind:class="{ error: this.hasError }"
              type="text"
              autocomplete="off"
              autofocus>
       <input id="login"
+             v-bind:disabled="!connected"
+             v-bind:title="connected ? null : 'Could not connect to the server'"
              type="submit"
-             value="Login"
-             v-bind:disabled="!connected">
+             value="Login">
       <div v-if="this.hasError" class="error-message">{{ this.error }}</div>
     </form>
   </div>
 </template>
 
 <script>
+import Cookies from 'js-cookie';
+
 export default {
   name: 'LoginView',
   data: function() {
@@ -40,12 +43,21 @@ export default {
     },
     connect_error: function(error) {
       this.connected = false;
-      alert('Could not connect to the server. Please wait and refresh this page.');
+      alert('Could not connect to the server. Please wait or refresh this page.');
+    },
+    disconnect: function(reason) {
+      this.connected = false;
+      alert('The server disconnected: ' + reason);
     },
     server_check_username_response: function(isTaken) {
-      if (isTaken) {
-        this.error = 'This username is taken';
-      }
+      if (!isTaken) return;
+      this.error = 'This username is taken';
+    },
+    server_login_response: function(loggedIn) {
+      console.log(loggedIn);
+      if (!loggedIn) return;
+      Cookies.set('username', this.username);
+      alert('Login successful. Welcome, ' + Cookies.get('username') + '!');
     }
   },
   computed: {
@@ -53,9 +65,8 @@ export default {
   },
   methods: {
     checkUsername: function() {
-      if (this.username.length < 3) {
-        this.error = 'Username must be at least 3 characters long';
-      }
+      if (this.username.length >= 3) return;
+      this.error = 'Username must be at least 3 characters long';
     },
     validateUsername: function() {
       this.checkUsername();

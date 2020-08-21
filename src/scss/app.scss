@@ -49,16 +49,17 @@ button:not([disabled]):hover, input[type=submit]:not([disabled]):hover {
   background: $btn-hv-bg;
 }
 
-input[disabled] {
+button[disabled], input[disabled] {
   opacity: 50%;
+  cursor: not-allowed;
 }
 
 input.error, button.error {
-  border: 1px solid red;
+  border: 1px solid $error-fg;
 }
 
 .error-message {
   margin-top: 12px;
-  color: red;
+  color: $error-fg;
   font-size: 14px;
 }

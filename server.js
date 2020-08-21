@@ -25,8 +25,8 @@ io.on('connection', (socket) => {
   });
 
   socket.on('client_login', (username) => {
-    if (isUsernameTaken(username)) return;
     clients[index].username = username;
+    socket.emit('server_login_response', true);
     log('login');
   });
 
