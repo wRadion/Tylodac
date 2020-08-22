@@ -1,7 +1,7 @@
 <template>
   <div id="wrapper">
     <img src="/assets/logo.png" />
-    <form @submit.prevent="login">
+    <form @submit.prevent="validateUsernameAndLogin">
       <label for="username">Username</label>
       <input id="username"
              v-model.trim="username"
@@ -34,7 +34,7 @@ export default {
   watch: {
     username: function(newValue, oldValue) {
       this.error = null;
-      this.checkUsername();
+      this.checkUsernameLength();
     }
   },
   sockets: {
@@ -48,34 +48,27 @@ export default {
     disconnect: function(reason) {
       this.connected = false;
       alert('The server disconnected: ' + reason);
-    },
-    server_check_username_response: function(isTaken) {
-      if (!isTaken) return;
-      this.error = 'This username is taken';
-    },
-    server_login_response: function(loggedIn) {
-      console.log(loggedIn);
-      if (!loggedIn) return;
-      Cookies.set('username', this.username);
-      alert('Login successful. Welcome, ' + Cookies.get('username') + '!');
     }
   },
   computed: {
     hasError: function() { return !!this.error; }
   },
   methods: {
-    checkUsername: function() {
-      if (this.username.length >= 3) return;
-      this.error = 'Username must be at least 3 characters long';
+    checkUsernameLength: function() {
+      if (this.username.length >= 3 && this.username.length <= 16) return;
+      this.error = 'Username must be between 3 and 16 characters long';
     },
-    validateUsername: function() {
-      this.checkUsername();
-      this.$socket.emit('client_check_username', this.username);
-    },
-    login: function() {
-      this.validateUsername();
-      if (this.hasError) return;
-      this.$socket.emit('client_login', this.username);
+    validateUsernameAndLogin: function() {
+      this.checkUsernameLength();
+      this.$socket.emit('client_check_username', this.username, (isTaken) => {
+        if (isTaken) this.error = 'Username is taken'
+        else {
+          this.$socket.emit('client_login', this.username, (isLoggedIn) => {
+            Cookies.set('username', this.username, { expires: 30 });
+            this.$router.go({ name: 'home' });
+          });
+        }
+      });
     }
   }
 }

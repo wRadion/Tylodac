@@ -17,8 +17,10 @@ const router = new VueRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  if (to.name !== 'login' && !Cookies.get('username')) next('/login');
-  else next();
+  const username = Cookies.get('username');
+
+  if (to.name === 'login') !!username ? next({ name: 'home' }) : next();
+  else !!username ? next() : next({ name: 'login' });
 });
 
 export default router;

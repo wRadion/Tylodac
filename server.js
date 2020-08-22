@@ -24,17 +24,16 @@ io.on('connection', (socket) => {
     log('disconnected')
   });
 
-  socket.on('client_login', (username) => {
+  socket.on('client_login', (username, res) => {
     clients[index].username = username;
-    socket.emit('server_login_response', true);
+    res(true);
     log('login');
   });
 
-  socket.on('client_check_username', (username) => {
-    socket.emit('server_check_username_response', isUsernameTaken(username));
+  socket.on('client_check_username', (username, res) => {
+    res(isUsernameTaken(username));
     log('check_username');
   });
-
 });
 
 console.log('listening on port ' + port + '...');
