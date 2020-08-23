@@ -11,16 +11,17 @@ Vue.use(VueRouter);
 const router = new VueRouter({
   mode: 'history',
   routes: [
-    { path: '/',      name: 'home',  component: HomeView },
+    { path: '/',      name: 'home',  component: HomeView, meta: { requiresAuth: true } },
     { path: '/login', name: 'login', component: LoginView }
   ]
 });
 
 router.beforeEach((to, from, next) => {
-  const username = Cookies.get('username');
-
-  if (to.name === 'login') !!username ? next({ name: 'home' }) : next();
-  else !!username ? next() : next({ name: 'login' });
+  if (to.matched.some(record => record.meta.requiresAuth)) {
+    const username = Cookies.get('username');
+    if (!username) return next({ name: 'login' });
+  }
+  return next();
 });
 
 export default router;

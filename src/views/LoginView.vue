@@ -1,7 +1,7 @@
 <template>
   <div id="wrapper">
     <img src="/assets/logo.png" />
-    <form @submit.prevent="validateUsernameAndLogin">
+    <form>
       <label for="username">Username</label>
       <input id="username"
              v-model.trim="username"
@@ -10,6 +10,7 @@
              autocomplete="off"
              autofocus>
       <input id="login"
+             @click.prevent="validateUsernameAndLogin"
              v-bind:disabled="!connected"
              v-bind:title="connected ? null : 'Could not connect to the server'"
              type="submit"
@@ -30,6 +31,9 @@ export default {
       error: null,
       connected: false
     }
+  },
+  created: function() {
+    if (Cookies.get('username')) this.$router.push({ name: 'home' });
   },
   watch: {
     username: function(newValue, oldValue) {
@@ -61,11 +65,11 @@ export default {
     validateUsernameAndLogin: function() {
       this.checkUsernameLength();
       this.$socket.emit('client_check_username', this.username, (isTaken) => {
-        if (isTaken) this.error = 'Username is taken'
+        if (isTaken) this.error = 'Username is taken';
         else {
           this.$socket.emit('client_login', this.username, (isLoggedIn) => {
             Cookies.set('username', this.username, { expires: 30 });
-            this.$router.go({ name: 'home' });
+            this.$router.push({ name: 'home' });
           });
         }
       });
