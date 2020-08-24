@@ -10,7 +10,7 @@
              autocomplete="off"
              autofocus>
       <input id="login"
-             @click.prevent="validateUsernameAndLogin"
+             @click.prevent="login"
              v-bind:disabled="!connected"
              v-bind:title="connected ? null : 'Could not connect to the server'"
              type="submit"
@@ -21,7 +21,7 @@
 </template>
 
 <script>
-import Cookies from 'js-cookie';
+import Session from '/modules/session';
 
 export default {
   name: 'LoginView',
@@ -33,12 +33,11 @@ export default {
     }
   },
   created: function() {
-    if (Cookies.get('username')) this.$router.push({ name: 'home' });
+    if (Session.isLogged()) this.$router.push({ name: 'home' });
   },
   watch: {
-    username: function(newValue, oldValue) {
-      this.error = null;
-      this.checkUsernameLength();
+    username: function(_, __) {
+      this.validateUsername();
     }
   },
   sockets: {
@@ -58,20 +57,16 @@ export default {
     hasError: function() { return !!this.error; }
   },
   methods: {
-    checkUsernameLength: function() {
+    validateUsername: function() {
+      this.error = null;
       if (this.username.length >= 3 && this.username.length <= 16) return;
       this.error = 'Username must be between 3 and 16 characters long';
     },
-    validateUsernameAndLogin: function() {
-      this.checkUsernameLength();
-      this.$socket.emit('client_check_username', this.username, (isTaken) => {
-        if (isTaken) this.error = 'Username is taken';
-        else {
-          this.$socket.emit('client_login', this.username, (isLoggedIn) => {
-            Cookies.set('username', this.username, { expires: 30 });
-            this.$router.push({ name: 'home' });
-          });
-        }
+    login: function() {
+      if (this.hasError) return;
+      this.$socket.emit('client_login', this.username, (sessionId) => {
+        Session.create(sessionId);
+        this.$router.push({ name: 'home' });
       });
     }
   }

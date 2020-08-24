@@ -17,6 +17,7 @@
     "redis": "^3.0.2",
     "scss": "^0.2.4",
     "socketio": "^1.0.0",
+    "uuid": "^8.3.0",
     "vue": "^2.6.11",
     "vue-hot-reload-api": "^2.3.4",
     "vue-router": "^3.4.3",

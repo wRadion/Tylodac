@@ -1,6 +1,9 @@
+// Libraries
 import Vue from 'vue';
 import VueRouter from 'vue-router';
-import Cookies from 'js-cookie';
+
+// Modules
+import Session from '/modules/session';
 
 // Components
 import HomeView from './views/HomeView.vue'
@@ -17,10 +20,7 @@ const router = new VueRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  if (to.matched.some(record => record.meta.requiresAuth)) {
-    const username = Cookies.get('username');
-    if (!username) return next({ name: 'login' });
-  }
+  if (to.matched.some(record => record.meta.requiresAuth) && !Session.isLogged()) return next({ name: 'login' });
   return next();
 });
 

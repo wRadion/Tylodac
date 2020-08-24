@@ -3,7 +3,16 @@
 </style>
 
 <script>
-export default { name: 'App' };
+import Session from '/modules/session';
+
+export default {
+  name: 'App',
+  sockets: {
+    connect: function() {
+      if (Session.isLogged()) Session.connect(this.$socket);
+    }
+  }
+};
 </script>
 
 <template>

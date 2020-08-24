@@ -1,40 +1,33 @@
 const io = require('socket.io')();
-const redis = require('redis')
-const redisClient = redis.createClient();
+const clientsManager = require('./server/clients_manager.js');
 
 const port = 4321;
 
-var currentId = 0;
-var clients = [];
-
-redisClient.on('error', (error) => { console.error(error); });
-
 io.on('connection', (socket) => {
-  const client = {
-    id: currentId++,
-    username: null
-  };
-  clients.push(client);
-  function getClientIndex() { return clients.findIndex(c => c.id === client.id); }
-
-  function log(message) { console.log('[client ' + client.id + '] ' + message); }
-
-  log('connected');
-
-  socket.on('disconnect', () => {
-    clients.splice(getClientIndex(), 1);
-    log('disconnected')
-  });
+  var client = null;
 
   socket.on('client_login', (username, res) => {
-    clients[getClientIndex()].username = username;
-    res(true);
-    log('login');
+    clientsManager.login(username, (onlineClientData) => {
+      res((client = onlineClientData).sessionId);
+      console.log('Client login (+connected)', username);
+    });
   });
 
-  socket.on('client_check_username', (username, res) => {
-    res(clients.findIndex(c => c.username === username) >= 0);
-    log('check_username');
+  socket.on('client_connect', (sessionId) => {
+    clientsManager.connect(sessionId, (onlineClientData) => {
+      client = onlineClientData;
+      console.log('Client connected', client.username);
+    });
+  });
+
+  socket.on('disconnect', () => {
+    clientsManager.disconnect(client.sessionId);
+    console.log('Client disconnected', client.username);
+  });
+
+  socket.on('client_logout', (sessionId, res) => {
+    clientsManager.logout(sessionId, () => res(true));
+    console.log('Client logout', client.username);
   });
 });
 
