@@ -1,16 +1,14 @@
 <template>
-  <div id="wrapper">
+  <div id="login-wrapper">
     <img src="/assets/logo.png" />
     <form>
-      <label for="username">Username</label>
-      <input id="username"
-             v-model.trim="username"
+      <label>Username</label>
+      <input v-model.trim="username"
              v-bind:class="{ error: this.hasError }"
              type="text"
              autocomplete="off"
              autofocus>
-      <input id="login"
-             @click.prevent="login"
+      <input @click.prevent="login"
              v-bind:disabled="!connected"
              v-bind:title="connected ? null : 'Could not connect to the server'"
              type="submit"
@@ -29,7 +27,7 @@ export default {
     return {
       username: '',
       error: null,
-      connected: false
+      connected: this.$socket.connected
     }
   },
   created: function() {
@@ -63,6 +61,7 @@ export default {
       this.error = 'Username must be between 3 and 16 characters long';
     },
     login: function() {
+      console.log(this.hasError);
       if (this.hasError) return;
       this.$socket.emit('client_login', this.username, (sessionId) => {
         Session.create(sessionId);
@@ -74,11 +73,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '/scss/variables.scss';
+$width: 500px;
 
-$width: 460px;
-
-#wrapper {
+#login-wrapper {
   width: $width;
   margin: auto;
   margin-top: 200px;
@@ -86,9 +83,9 @@ $width: 460px;
 }
 
 form {
-  padding: $main-pd;
+  padding: 16px;
   width: $width;
-  background: $lvl1-bg;
-  border-radius: $main-br;
+  background: #333333;
+  border-radius: 4px;
 }
 </style>

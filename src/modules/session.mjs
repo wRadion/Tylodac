@@ -8,9 +8,14 @@ function getSession() {
   return sessionId;
 }
 
+function deleteSession() {
+  sessionId = null;
+  Cookies.remove(cookieKey);
+}
+
 export default {
   create: (sessionId) => Cookies.set(cookieKey, sessionId, { expires: 30 }),
   get: getSession,
-  connect: (socket) => socket.emit('client_connect', getSession()),
-  isLogged: () => !!getSession()
+  isLogged: () => !!getSession(),
+  logout: deleteSession
 };

@@ -1,9 +1,13 @@
 <template>
-  <h1>Home</h1>
+  <div>
+    <h1>Home</h1>
+  </div>
 </template>
 
 <script>
-export default { name: 'HomeView' }
+export default {
+  name: 'HomeView'
+}
 </script>
 
 <style lang="scss">

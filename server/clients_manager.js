@@ -3,7 +3,21 @@ const session = require('./session.js');
 const onlineClients = [];
 
 /* PRIVATE */
+function getOnlineClientIndex(sessionId) {
+  return onlineClients.findIndex(client => client.sessionId === sessionId);
+}
+
+function removeOnlineClient(sessionId) {
+  onlineClients.splice(getOnlineClientIndex(sessionId), 1);
+}
+
 function connectClient(sessionId, callback) {
+  console.log(onlineClients.length);
+  if (getOnlineClientIndex(sessionId) >= 0) {
+    // Someone already connected with same sessionId
+    // TODO: send errror to client?
+    return;
+  }
   session.get(sessionId, (clientData) => {
     const onlineClientData = Object.assign({ sessionId: sessionId }, clientData);
     onlineClients.push(onlineClientData);
@@ -12,11 +26,11 @@ function connectClient(sessionId, callback) {
 }
 
 function disconnectClient(sessionId) {
-  onlineClients.splice(getOnlineClientIndex(sessionId), 1);
-}
-
-function getOnlineClientIndex(sessionId) {
-  return onlineClients.findIndex(client => client.sessionId === sessionId);
+  if (getOnlineClientIndex < 0) {
+    // Client is not connected
+    return;
+  }
+  removeOnlineClient(sessionId);
 }
 
 /* EXPORTS */
@@ -31,11 +45,6 @@ module.exports.logout = function(sessionId, callback) {
     removeOnlineClient(sessionId);
     callback();
   });
-};
-
-module.exports.getUsername = function(sessionId) {
-  const onlineClient = onlineClients[getOnlineClientIndex(sessionId)]
-  return onlineClient ? onlineClient.username : null;
 };
 
 module.exports.connect = connectClient;
