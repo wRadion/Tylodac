@@ -1,28 +1,13 @@
 <template>
   <div>
-    <HeaderComponent v-bind:username="username"
-                     v-if="this.$router.currentRoute.name !== 'login'">
-    </HeaderComponent>
+    <router-view name="header"></router-view>
     <router-view></router-view>
   </div>
 </template>
 
 <script>
-import HeaderComponent from './components/HeaderComponent';
-
 export default {
-  components: { HeaderComponent },
-  name: 'App',
-  data: function() {
-    return {
-      username: null
-    };
-  },
-  sockets: {
-    server_connect: function(username) {
-      this.username = username;
-    }
-  }
+  name: 'App'
 };
 </script>
 
@@ -47,11 +32,16 @@ body {
   background: #222222;
 }
 
+strong {
+  color: inherit;
+  font-weight: 500;
+}
+
 label {
   color: #AAAAAA;
 }
 
-input {
+input, button {
   padding: 8px;
   border: 1px solid transparent;
   border-radius: 4px;
@@ -70,6 +60,7 @@ input[type=text] {
 button, input[type=submit] {
   color: #AAAAAA;
   background: #555555;
+  cursor: pointer;
 }
 
 button:not([disabled]):hover, input[type=submit]:not([disabled]):hover {

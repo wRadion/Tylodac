@@ -21,10 +21,14 @@ io.on('connection', (socket) => {
 
   function connectClient(clientData) {
     client = clientData;
-    socket.emit('server_connect', client.username);
     console.log('Client connected', client.username);
 
     /* Event Handlers */
+    socket.on('client_username', (res) => {
+      res(client.username);
+      console.log('Client username', client.username);
+    });
+
     socket.on('disconnect', () => {
       clientsManager.disconnect(client.sessionId);
       console.log('Client disconnected', client.username);
@@ -39,7 +43,6 @@ io.on('connection', (socket) => {
   if (!sessionId) {
     /* Client (No Login) */
     socket.on('client_login', (username, res) => {
-      console.log('A client tries to login...');
       clientsManager.login(username, (clientData) => {
         res(clientData.sessionId);
         console.log('Client login', clientData.username);

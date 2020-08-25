@@ -12,7 +12,6 @@ function removeOnlineClient(sessionId) {
 }
 
 function connectClient(sessionId, callback) {
-  console.log(onlineClients.length);
   if (getOnlineClientIndex(sessionId) >= 0) {
     // Someone already connected with same sessionId
     // TODO: send errror to client?

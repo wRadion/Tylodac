@@ -61,7 +61,6 @@ export default {
       this.error = 'Username must be between 3 and 16 characters long';
     },
     login: function() {
-      console.log(this.hasError);
       if (this.hasError) return;
       this.$socket.emit('client_login', this.username, (sessionId) => {
         Session.create(sessionId);

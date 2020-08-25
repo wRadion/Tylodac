@@ -6,8 +6,11 @@ import VueRouter from 'vue-router';
 import Session from '/modules/session';
 
 // Components
-import HomeView from './views/HomeView.vue';
-import LoginView from './views/LoginView.vue';
+import HomeView from './views/HomeView';
+import LoginView from './views/LoginView';
+import NotFoundView from './views/NotFoundView';
+
+import HeaderComponent from './components/HeaderComponent';
 
 Vue.use(VueRouter);
 
@@ -17,13 +20,20 @@ const router = new VueRouter({
     {
       path: '/',
       name: 'home',
-      component: HomeView,
+      components: {
+        default: HomeView,
+        header: HeaderComponent
+      },
       meta: { requiresAuth: true }
     },
     {
       path: '/login',
       name: 'login',
       component: LoginView
+    },
+    {
+      path: '*',
+      component: NotFoundView
     }
   ]
 });
