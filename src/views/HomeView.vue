@@ -1,6 +1,6 @@
 <template>
   <div>
-    <TypingTestComponent style="width: 1200px" />
+    <TypingTestComponent style="max-width: 1200px" />
   </div>
 </template>
 
