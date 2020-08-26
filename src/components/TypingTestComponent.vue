@@ -1,31 +1,38 @@
 <template>
   <div ref="mainDiv" @click="$refs.input.focus()">
+
+    <!-- INVISIBLE INPUT -->
+    <input ref="input"
+            v-model="input"
+            @input="onInput"
+            @keydown="onKeydown"
+            @focus="inputIsFocused = true"
+            @blur="inputIsFocused = false"
+            @paste.prevent=""
+            type="text"
+            autocomplete="off"
+            autofocus>
+
+    <!-- WORDS TO TYPE -->
     <div class="words">
       <span v-for="(word, index) in this.words"
-            v-bind:key="index"
-            v-bind:class="['word', { current: index === wordIndex }]"
-            v-bind:ref="'word-' + index">{{ word }}</span>
+            :key="'word' + index"
+            :class="['word', { current: index === wordIndex }]"
+            :ref="'word-' + index">{{ word }}</span>
     </div>
 
+    <!-- WORDS TYPED -->
     <div class="words">
-      <input ref="input"
-             v-model="input"
-             @input="onInput"
-             @keydown="onKeydown"
-             @focus="inputIsFocused = true"
-             @blur="inputIsFocused = false"
-             @paste.prevent=""
-             type="text"
-             autocomplete="off"
-             autofocus>
-      <span v-for="({ input, word, errorIndex }, index) in this.inputs"
-            v-bind:key="index"
-            v-bind:class="['word',
-                           'input',
-                           { current: index === wordIndex },
-                           getWordInputClass(input, word, index)]">{{ input.slice(0, errorIndex >= 0 ? errorIndex : input.length) }}<template v-if="errorIndex >= 0"><span v-if="errorIndex < word.length || input.length > word.length" class="error">{{ input.slice(errorIndex) }}</span><span class="missing">{{ word.slice(errorIndex) }}</span></template></span>
+      <InputWordComponent v-for="({ input, word, errorIndex }, index) in this.inputs"
+                          :key="'input' + index"
+                          :input="input"
+                          :word="word"
+                          :errorIndex="errorIndex"
+                          :index="index"
+                          :wordIndex="wordIndex">
     </div>
 
+    <!-- CARET -->
     <div ref="caret"
          v-show="inputIsFocused"
          class="caret">
@@ -37,7 +44,12 @@
 import SeedRandom from 'seedrandom';
 import Words from '/modules/words';
 
+import InputWordComponent from './typing-test/InputWordComponent'
+
 export default {
+  components: {
+    InputWordComponent
+  },
   name: 'TypingTestComponent',
   data: function() {
     return {
@@ -58,19 +70,19 @@ export default {
   beforeMount: function() {
     this.generateWords(150, 'seed');
   },
+  mounted: function() {
+    window.addEventListener('resize', this.updateCaretPosition);
+  },
+  beforeDestroy: function() {
+    window.removeEventListener('resize', this.updateCaretPosition);
+  },
   methods: {
-    getWordInputClass: function(input, word, index) {
-      return (index === this.wordIndex ? word.startsWith(input) : word === input) ? 'correct' : 'wrong';
-    },
-    getElementRect: function(element) {
+    updateCaretPosition: function() {
       const baseRect = this.$refs.mainDiv.getBoundingClientRect();
-      const rect = element.getBoundingClientRect();
-      return {
-        left: rect.left - baseRect.left,
-        right: rect.right - baseRect.right,
-        top: rect.top - baseRect.top,
-        bottom: rect.bottom - baseRect.bottom
-      };
+      const rect = this.$refs['word-' + this.wordIndex][0].getBoundingClientRect();
+      const wordRect = { left: rect.left - baseRect.left, top: rect.top - baseRect.top }
+      this.$refs.caret.style.left = wordRect.left + (this.charWidth * (this.charIndex - 1)) + 'px';
+      this.$refs.caret.style.top = wordRect.top + 'px';
     },
     onInput: function(e) {
       if (e.data === ' ') {
@@ -116,9 +128,7 @@ export default {
       this.charIndex = this.input.length;
 
       // Udpate Caret position
-      const wordRect = this.getElementRect(this.$refs['word-' + this.wordIndex][0]);
-      this.$refs.caret.style.left = wordRect.left + (this.charWidth * (this.charIndex - 1)) + 'px';
-      this.$refs.caret.style.top = wordRect.top + 'px';
+      this.updateCaretPosition();
     },
     onKeydown: function(e) {
       // Disable Arrow keys
@@ -156,7 +166,7 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 $font-size: 25px;
 $char-width: 15px;
 
@@ -190,6 +200,14 @@ div {
   }
 }
 
+input {
+  width: 0;
+  height: 0;
+  padding: 0;
+  margin: 0;
+  opacity: 0%;
+}
+
 .words {
   width: 100%;
   display: flex;
@@ -197,34 +215,14 @@ div {
   align-content: flex-start;
 
   > .word { margin-left: $char-width; }
-  .word, .missing {
+  .word + .word { margin-left: $char-width; }
+  .word {
     height: 40px;
     color: #999999;
     font-size: $font-size;
     text-shadow: 1px 1px #111111;
     line-height: 40px;
   }
-  .input {
-    background: #222222;
-
-    .error {
-      font: inherit;
-      color: #CC222299;
-      text-decoration: underline dotted;
-    }
-  }
-  .word + .word { margin-left: $char-width; }
-  .word.correct { color: #55FF33; }
-  .word.current, .word.current.correct, .input.current .error, .input.current .missing { color: #CCCCCC; text-decoration: none; }
-  .word.input.wrong, .word.input.current.wrong span { color: #FF4444; }
-
-  input {
-    width: 0;
-    height: 0;
-    padding: 0;
-    margin: 0;
-    background: none;
-    border: none;
-  }
+  .current, .current * { color: #CCCCCC; text-decoration: none; }
 }
 </style>
