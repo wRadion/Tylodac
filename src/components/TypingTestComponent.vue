@@ -3,33 +3,26 @@
 
     <!-- INVISIBLE INPUT -->
     <input ref="input"
-            v-model="input"
-            @input="onInput"
-            @keydown="onKeydown"
-            @focus="inputIsFocused = true"
-            @blur="inputIsFocused = false"
-            @paste.prevent=""
-            type="text"
-            autocomplete="off"
-            autofocus>
+           v-model="input"
+           @input="onInput"
+           @keydown="onKeydown"
+           @focus="inputIsFocused = true"
+           @blur="inputIsFocused = false"
+           @paste.prevent=""
+           type="text"
+           autocomplete="off"
+           autofocus>
 
-    <!-- WORDS TO TYPE -->
+    <!-- WORDS -->
     <div class="words">
-      <span v-for="(word, index) in this.words"
-            :key="'word' + index"
-            :class="['word', { current: index === wordIndex }]"
-            :ref="'word-' + index">{{ word }}</span>
-    </div>
-
-    <!-- WORDS TYPED -->
-    <div class="words">
-      <InputWordComponent v-for="({ input, word, errorIndex }, index) in this.inputs"
-                          :key="'input' + index"
-                          :input="input"
-                          :word="word"
-                          :errorIndex="errorIndex"
-                          :index="index"
-                          :wordIndex="wordIndex">
+      <WordComponent v-for="({ word, input, errorIndex }, index) in this.words" :key="'word' + index"
+                     :ref="'word-' + index"
+                     :word="word"
+                     :input="input"
+                     :errorIndex="errorIndex"
+                     :index="index"
+                     :wordIndex="wordIndex"
+                     :charIndex="charIndex">
     </div>
 
     <!-- CARET -->
@@ -44,22 +37,17 @@
 import SeedRandom from 'seedrandom';
 import Words from '/modules/words';
 
-import InputWordComponent from './typing-test/InputWordComponent'
+import WordComponent from './typing-test/WordComponent'
 
 export default {
   components: {
-    InputWordComponent
+    WordComponent
   },
   name: 'TypingTestComponent',
   data: function() {
     return {
       charWidth: 15,
       words: [],
-      inputs: [{
-        input: '',
-        word: '',
-        errorIndex: -1
-      }],
       input: '',
       wordIndex: 0,
       charIndex: 0,
@@ -79,7 +67,7 @@ export default {
   methods: {
     updateCaretPosition: function() {
       const baseRect = this.$refs.mainDiv.getBoundingClientRect();
-      const rect = this.$refs['word-' + this.wordIndex][0].getBoundingClientRect();
+      const rect = this.$refs['word-' + this.wordIndex][0].$el.getBoundingClientRect();
       const wordRect = { left: rect.left - baseRect.left, top: rect.top - baseRect.top }
       this.$refs.caret.style.left = wordRect.left + (this.charWidth * (this.charIndex - 1)) + 'px';
       this.$refs.caret.style.top = wordRect.top + 'px';
@@ -93,35 +81,27 @@ export default {
           return;
         }
         // Space - Character in input
-        const inputObj = this.inputs[this.wordIndex];
-        if (inputObj.errorIndex < 0 && inputObj.input !== inputObj.word) {
+        const wordObj = this.words[this.wordIndex];
+        if (wordObj.errorIndex < 0 && wordObj.input !== wordObj.word) {
           // Previous word missing character(s)
-          this.inputs[this.wordIndex].errorIndex = this.charIndex;
+          this.words[this.wordIndex].errorIndex = this.charIndex;
         }
         ++this.wordIndex;
-        this.inputs.push({
-          input: '',
-          word: this.words[this.wordIndex],
-          errorIndex: -1
-        });
         this.input = '';
       } else {
         // Character(s)
-        this.inputs[this.wordIndex].input = this.input;
-        const input = this.inputs[this.wordIndex].input;
-        const word = this.inputs[this.wordIndex].word;
-        var errorIndex = this.inputs[this.wordIndex].errorIndex;
-        const refWord = this.$refs['word-' + this.wordIndex][0];
+        this.words[this.wordIndex].input = this.input;
+        const input = this.words[this.wordIndex].input;
+        const word = this.words[this.wordIndex].word;
+        var errorIndex = this.words[this.wordIndex].errorIndex;
 
         if (!word.startsWith(input)) {
           // Wrong character
-          if (errorIndex < 0) this.inputs[this.wordIndex].errorIndex = this.charIndex;
-          errorIndex = this.inputs[this.wordIndex].errorIndex;
-          refWord.innerText = input + word.slice(errorIndex);
+          if (errorIndex < 0) this.words[this.wordIndex].errorIndex = this.charIndex;
+          errorIndex = this.words[this.wordIndex].errorIndex;
         } else if (errorIndex >= 0) {
           // Backspace error
-          this.inputs[this.wordIndex].errorIndex = -1;
-          refWord.innerText = word;
+          this.words[this.wordIndex].errorIndex = -1;
         }
       }
       // Update charIndex
@@ -140,10 +120,9 @@ export default {
       // Backspace
       if (this.wordIndex > 0 && e.keyCode === 8 && this.input.length === 0) {
         --this.wordIndex;
-        this.inputs.pop();
-        const previousInputObj = this.inputs[this.wordIndex];
-        this.input = previousInputObj.input + '?';
-        this.charIndex = previousInputObj.length;
+        const previousWordObj = this.words[this.wordIndex];
+        this.input = previousWordObj.input + '?';
+        this.charIndex = previousWordObj.length;
       }
 
       // "Stop" (+resume) Caret animation
@@ -158,9 +137,12 @@ export default {
       for (let i = 0; i < wordCount; ++i) {
         words[Math.floor(rand() * words.length)].
           split(' ').
-          forEach(word => this.words.push(word));
+          forEach(word => this.words.push({
+            word: word,
+            input: '',
+            errorIndex: -1
+          }));
       }
-      this.inputs[0].word = this.words[0];
     }
   }
 };

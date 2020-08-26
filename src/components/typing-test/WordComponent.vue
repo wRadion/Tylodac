@@ -2,22 +2,21 @@
 <template><!--
 --><span v-bind:class="['word', 'input', { current: index === wordIndex }, inputClass]"><!--
   --><span class="main">{{ input.slice(0, errorIndex >= 0 ? errorIndex : input.length) }}</span><!--
-  --><template v-if="errorIndex >= 0"><!--
-    --><span class="error" v-if="errorIndex < word.length || input.length > word.length">{{ input.slice(errorIndex) }}</span><!--
-    --><span class="missing">{{ word.slice(errorIndex) }}</span><!--
-  --></template><!--
+  --><span class="error" v-if="errorIndex >= 0 && (errorIndex < word.length || input.length > word.length)">{{ input.slice(errorIndex) }}</span><!--
+  --><span class="missing">{{ word.slice(errorIndex >= 0 ? errorIndex : input.length) }}</span><!--
 --></span>
 </template>
 
 <script>
 export default {
-  name: 'InputWordComponent',
+  name: 'WordComponent',
   props: {
-    input: String,
     word: String,
+    input: String,
     errorIndex: Number,
     index: Number,
-    wordIndex: Number
+    wordIndex: Number,
+    charIndex: Number
   },
   computed: {
     inputClass: function() {
