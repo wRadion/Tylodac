@@ -15,14 +15,14 @@
 
     <!-- WORDS -->
     <div class="words">
-      <WordComponent v-for="({ word, input, errorIndex }, index) in this.words" :key="'word' + index"
+      <WordComponent v-for="(word, index) in this.words" :key="'word' + index"
                      :ref="'word-' + index"
                      :word="word"
-                     :input="input"
-                     :errorIndex="errorIndex"
                      :index="index"
+                     :input="input"
                      :wordIndex="wordIndex"
-                     :charIndex="charIndex">
+                     @current="onCurrentWordChanged"
+                     @charIndexChanged="onCharIndexChanged">
     </div>
 
     <!-- CARET -->
@@ -50,7 +50,6 @@ export default {
       words: [],
       input: '',
       wordIndex: 0,
-      charIndex: 0,
       inputIsFocused: true,
       caretTimeout: null
     }
@@ -65,65 +64,33 @@ export default {
     window.removeEventListener('resize', this.updateCaretPosition);
   },
   methods: {
-    updateCaretPosition: function() {
+    onCurrentWordChanged: function(typed) {
+      this.input = typed;
+    },
+    onCharIndexChanged: function(charIndex) {
+      this.updateCaretPosition(charIndex);
+    },
+    updateCaretPosition: function(charIndex) {
       const baseRect = this.$refs.mainDiv.getBoundingClientRect();
       const rect = this.$refs['word-' + this.wordIndex][0].$el.getBoundingClientRect();
       const wordRect = { left: rect.left - baseRect.left, top: rect.top - baseRect.top }
-      this.$refs.caret.style.left = wordRect.left + (this.charWidth * (this.charIndex - 1)) + 'px';
+      this.$refs.caret.style.left = wordRect.left + (this.charWidth * (charIndex - 1)) + 'px';
       this.$refs.caret.style.top = wordRect.top + 'px';
     },
     onInput: function(e) {
       if (e.data === ' ') {
-        // Space
-        if (this.input === ' ') {
-          // Space - No characters in input
-          this.input = '';
-          return;
-        }
+        // Space - No character in input
+        if (this.input === ' ') return (this.input = '');
         // Space - Character in input
-        const wordObj = this.words[this.wordIndex];
-        if (wordObj.errorIndex < 0 && wordObj.input !== wordObj.word) {
-          // Previous word missing character(s)
-          this.words[this.wordIndex].errorIndex = this.charIndex;
-        }
         ++this.wordIndex;
-        this.input = '';
-      } else {
-        // Character(s)
-        this.words[this.wordIndex].input = this.input;
-        const input = this.words[this.wordIndex].input;
-        const word = this.words[this.wordIndex].word;
-        var errorIndex = this.words[this.wordIndex].errorIndex;
-
-        if (!word.startsWith(input)) {
-          // Wrong character
-          if (errorIndex < 0) this.words[this.wordIndex].errorIndex = this.charIndex;
-          errorIndex = this.words[this.wordIndex].errorIndex;
-        } else if (errorIndex >= 0) {
-          // Backspace error
-          this.words[this.wordIndex].errorIndex = -1;
-        }
       }
-      // Update charIndex
-      this.charIndex = this.input.length;
-
-      // Udpate Caret position
-      this.updateCaretPosition();
     },
     onKeydown: function(e) {
       // Disable Arrow keys
-      if (37 <= e.keyCode && e.keyCode <= 40) {
-        e.preventDefault();
-        return;
-      }
+      if (37 <= e.keyCode && e.keyCode <= 40) return e.preventDefault();
 
       // Backspace
-      if (this.wordIndex > 0 && e.keyCode === 8 && this.input.length === 0) {
-        --this.wordIndex;
-        const previousWordObj = this.words[this.wordIndex];
-        this.input = previousWordObj.input + '?';
-        this.charIndex = previousWordObj.length;
-      }
+      if (this.wordIndex > 0 && e.keyCode === 8 && this.input.length === 0) --this.wordIndex;
 
       // "Stop" (+resume) Caret animation
       this.$refs.caret.style.animationIterationCount = 0;
@@ -137,11 +104,7 @@ export default {
       for (let i = 0; i < wordCount; ++i) {
         words[Math.floor(rand() * words.length)].
           split(' ').
-          forEach(word => this.words.push({
-            word: word,
-            input: '',
-            errorIndex: -1
-          }));
+          forEach(word => this.words.push(word));
       }
     }
   }
@@ -195,16 +158,6 @@ input {
   display: flex;
   flex-wrap: wrap;
   align-content: flex-start;
-
   > .word { margin-left: $char-width; }
-  .word + .word { margin-left: $char-width; }
-  .word {
-    height: 40px;
-    color: #999999;
-    font-size: $font-size;
-    text-shadow: 1px 1px #111111;
-    line-height: 40px;
-  }
-  .current, .current * { color: #CCCCCC; text-decoration: none; }
 }
 </style>
