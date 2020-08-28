@@ -21,41 +21,52 @@
                      :index="index"
                      :input="input"
                      :wordIndex="wordIndex"
-                     @current="onCurrentWordChanged"
-                     @charIndexChanged="onCharIndexChanged">
+                     @currentChanged="input = $event"
+                     @charIndexChanged="onCharIndexChanged"
+                     @wordTyped="onWordTyped"
+                     @wordCancelled="onWordCancelled">
     </div>
 
     <!-- CARET -->
     <div ref="caret"
-         v-show="inputIsFocused"
+         v-show="inputIsFocused && !finished"
          class="caret">
     </div>
   </div>
 </template>
 
 <script>
-import SeedRandom from 'seedrandom';
-import Words from '/modules/words';
+import Keystrokes from '/modules/keystrokes';
 
 import WordComponent from './typing-test/WordComponent'
+
+const CHAR_WIDTH = 15;
 
 export default {
   components: {
     WordComponent
   },
   name: 'TypingTestComponent',
+  props: {
+    language: String,
+    text: String
+  },
   data: function() {
     return {
-      charWidth: 15,
       words: [],
       input: '',
       wordIndex: 0,
       inputIsFocused: true,
-      caretTimeout: null
+      caretTimeout: null,
+      keystrokes: {
+        correct: 0,
+        incorrect: 0
+      },
+      corrections: 0
     }
   },
   beforeMount: function() {
-    this.generateWords(150, 'seed');
+    if (this.text) this.text.split(' ').forEach(word => this.words.push(word));
   },
   mounted: function() {
     window.addEventListener('resize', this.updateCaretPosition);
@@ -63,21 +74,73 @@ export default {
   beforeDestroy: function() {
     window.removeEventListener('resize', this.updateCaretPosition);
   },
+  computed: {
+    finished: function() {
+      return this.wordIndex >= this.words.length;
+    }
+  },
+  watch: {
+    input: function(newValue, oldValue) {
+      if (this.finished) return;
+
+      // Corrections
+      const diff = newValue.length - oldValue.length;
+      if (diff < 0 && oldValue[oldValue.length - 1] !== ' ') this.corrections += Math.abs(diff);
+    }
+  },
   methods: {
-    onCurrentWordChanged: function(typed) {
-      this.input = typed;
-    },
     onCharIndexChanged: function(charIndex) {
+      if (this.finished) return;
+
+      if (this.wordIndex === this.words.length - 1 && charIndex >= this.words[this.wordIndex].length) {
+        // Last word, last char
+        ++this.wordIndex;
+      }
+
       this.updateCaretPosition(charIndex);
     },
+    onWordTyped: function(index, correct, typed) {
+      console.log('typed', correct, '"' + typed + '"');
+      const islastWord = index >= this.words.length - 1;
+
+      // Keystrokes
+      const keystrokes = Keystrokes.get(this.language, typed) + (islastWord ? 0 : 1);
+
+      if (correct) {
+        this.keystrokes.correct += keystrokes;
+      } else {
+        this.keystrokes.incorrect += keystrokes;
+      }
+
+      // Last word typed
+      if (islastWord) this.$emit('finished', this.keystrokes, this.corrections);
+    },
+    onWordCancelled: function(correct, typed) {
+      console.log('cancelled', correct, '"' + typed + '"');
+      // Keystrokes
+      const keystrokes = Keystrokes.get(this.language, typed) + 1;
+
+      if (correct) {
+        this.keystrokes.correct -= keystrokes;
+      } else {
+        this.keystrokes.incorrect -= keystrokes;
+      }
+    },
+    getRefWord: function(index) {
+      return this.$refs['word-' + index][0];
+    },
     updateCaretPosition: function(charIndex) {
+      if (this.finished) return;
+
       const baseRect = this.$refs.mainDiv.getBoundingClientRect();
-      const rect = this.$refs['word-' + this.wordIndex][0].$el.getBoundingClientRect();
+      const rect = this.getRefWord(this.wordIndex).$el.getBoundingClientRect();
       const wordRect = { left: rect.left - baseRect.left, top: rect.top - baseRect.top }
-      this.$refs.caret.style.left = wordRect.left + (this.charWidth * (charIndex - 1)) + 'px';
+      this.$refs.caret.style.left = wordRect.left + (CHAR_WIDTH * (charIndex - 1)) + 'px';
       this.$refs.caret.style.top = wordRect.top + 'px';
     },
     onInput: function(e) {
+      if (this.finished) return;
+
       if (e.data === ' ') {
         // Space - No character in input
         if (this.input === ' ') return (this.input = '');
@@ -86,38 +149,39 @@ export default {
       }
     },
     onKeydown: function(e) {
-      // Disable Arrow keys
-      if (37 <= e.keyCode && e.keyCode <= 40) return e.preventDefault();
+      if (this.finished) return;
+
+      // Disable Arrow keys + Home/End/PageUp/PageDown
+      if (33 <= e.keyCode && e.keyCode <= 40) return e.preventDefault();
+      // Disable Insert
+      if (e.keyCode === 45) return e.preventDefault();
 
       // Backspace
-      if (this.wordIndex > 0 && e.keyCode === 8 && this.input.length === 0) --this.wordIndex;
+      if (e.keyCode === 8) {
+        if (this.wordIndex > 0 && this.input.length === 0) {
+          --this.wordIndex;
+          e.preventDefault();
+        }
+      }
 
       // "Stop" (+resume) Caret animation
       this.$refs.caret.style.animationIterationCount = 0;
       if (this.caretTimeout) clearTimeout(this.caretTimeout);
       this.caretTimeout = setTimeout(() => this.$refs.caret.style.animationIterationCount = 'infinite', 1000);
-    },
-    generateWords: function(wordCount, seed) {
-      const rand = SeedRandom(seed);
-      const words = Words.english.split('|');
-
-      for (let i = 0; i < wordCount; ++i) {
-        words[Math.floor(rand() * words.length)].
-          split(' ').
-          forEach(word => this.words.push(word));
-      }
     }
   }
 };
 </script>
 
-<style lang="scss">
-$font-size: 25px;
+<style lang="scss" scoped>
 $char-width: 15px;
 
 div {
   position: relative;
   margin: auto;
+}
+
+* {
   cursor: text;
 }
 
@@ -158,6 +222,5 @@ input {
   display: flex;
   flex-wrap: wrap;
   align-content: flex-start;
-  > .word { margin-left: $char-width; }
 }
 </style>

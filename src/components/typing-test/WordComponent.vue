@@ -1,6 +1,6 @@
 <!-- Comments are here to remove whitespaces generated from newlines (because spans are inlines) -->
 <template><!--
---><span v-bind:class="['word', 'input', inputClass, { current: index === wordIndex }]"><!--
+--><span v-bind:class="['word', { first: index === 0 }, validationClass, { current: index === wordIndex }, { wrong: this.errorIndex >= 0 }]"><!--
   --><span class="main">{{ typed.slice(0, errorIndex >= 0 ? errorIndex : typed.length) }}</span><!--
   --><span class="error" v-if="errorIndex >= 0 && (errorIndex < word.length || typed.length > word.length)">{{ typed.slice(errorIndex) }}</span><!--
   --><span class="missing">{{ word.slice(errorIndex >= 0 ? errorIndex : typed.length) }}</span><!--
@@ -19,18 +19,19 @@ export default {
   data: function() {
     return {
       typed: '',
-      errorIndex: -1
+      errorIndex: -1,
+      validationClass: null
     };
   },
   watch: {
-    input: function(newValue, oldValue) {
-      if (!this.isThisCurrent) return;
+    input: function(newValue, _oldValue) {
+      if (this.index !== this.wordIndex) return;
       if (newValue[newValue.length - 1] === ' ') return;
 
       this.typed = newValue;
       if (!this.word.startsWith(this.typed)) {
         // Wrong Character
-        if (this.errorIndex < 0) this.errorIndex = this.typed.length - 1;
+        if (this.errorIndex < 0) this.errorIndex = this.charIndex - 1;
       } else if (this.errorIndex >= 0) {
         // Typed became good, cancel potential error
         this.errorIndex = -1;
@@ -38,26 +39,38 @@ export default {
 
       this.$emit('charIndexChanged', this.typed.length);
     },
+    validationClass: function(newValue, oldValue) {
+      if (oldValue !== null) this.$emit('wordCancelled', oldValue === 'correct', this.typed);
+      else this.$emit('wordTyped', this.index, newValue === 'correct', this.typed);
+    },
     wordIndex: function(newValue, oldValue) {
       if (oldValue === this.index) {
-        // from THIS to a word
+        // THIS -> word
         // "Previous" (this) missing character(s)
-        if (this.errorIndex < 0 && !this.word.startsWith(this.typed)) this.errorIndex = this.typed.length - 1;
+        if (this.errorIndex < 0) {
+          if (this.word === this.typed) {
+            this.validationClass = 'correct';
+          } else if (this.typed.length > 0) {
+            this.errorIndex = this.charIndex - 1;
+            this.validationClass = 'incorrect';
+          }
+        } else {
+          this.validationClass = 'incorrect';
+        }
       } else if (newValue === this.index) {
-        // from a word to THIS
-        if (this.typed.length > 0) this.typed += '?';
-        this.$emit('current', this.typed);
-        this.$emit('charIndexChanged', this.typed.length);
+        // word -> THIS
+        // Add a char because when backspace-ing from a word to another one,
+        //   the backspace is registered and changes the input
+        this.validationClass = null;
+        this.$emit('currentChanged', this.typed);
+        this.$emit('charIndexChanged', this.charIndex);
       }
     }
   },
   computed: {
-    isThisCurrent: function() {
-      return this.index === this.wordIndex;
-    },
-    inputClass: function() {
-      return (this.isThisCurrent ? this.word.startsWith(this.typed) : this.word === this.typed) ? 'correct' : 'wrong';
-    },
+    charIndex: function() {
+      return this.typed.length;
+    }
   }
 };
 </script>
@@ -66,22 +79,48 @@ export default {
 $font-size: 25px;
 $char-width: 15px;
 
+.word.first { margin-left: $char-width; }
 .word + .word { margin-left: $char-width; }
 .word {
+  position: relative;
+  top: 0;
+  left: 0;
   height: 40px;
   color: #999999;
   font-size: $font-size;
   text-shadow: 1px 1px #111111;
   line-height: 40px;
-}
-.input {
-  background: #222222;
 
   span { font: inherit; }
   .error { color: #CC222299; text-decoration: underline dotted; }
 }
 
-.correct .main { color: #55FF33; }
 .current .main, .current .error { color: #CCCCCC; text-decoration: none; }
-.wrong .main, .current.wrong .error { color: #FF4444; text-decoration: none; }
+.wrong .main, .incorrect .main, .current.wrong .error { color: #FF4444; text-decoration: none; }
+
+.correct .main {
+  color: #55FF33;
+  animation: shine 0.75s ease-out 1;
+
+  @keyframes shine {
+    0% {
+      text-shadow: 0 0 8px #00FF00;
+      color: #CCFFCC;
+    }
+    100% {
+      text-shadow: 0 0 0px transparent;
+      color: #55FF33;
+    }
+  }
+}
+
+.incorrect {
+  animation: shake 0.25s linear 1;
+
+  @keyframes shake {
+    0%, 30%, 60%, 90% { left: -3px; }
+    15%, 55%, 75% { left: 3px; }
+    100% { left: 0px; }
+  }
+}
 </style>
