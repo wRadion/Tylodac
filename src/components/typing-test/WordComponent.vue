@@ -59,8 +59,6 @@ export default {
         }
       } else if (newValue === this.index) {
         // word -> THIS
-        // Add a char because when backspace-ing from a word to another one,
-        //   the backspace is registered and changes the input
         this.validationClass = null;
         this.$emit('currentChanged', this.typed);
         this.$emit('charIndexChanged', this.charIndex);

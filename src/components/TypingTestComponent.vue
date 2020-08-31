@@ -36,6 +36,7 @@
 </template>
 
 <script>
+import moment from 'moment';
 import Keystrokes from '/modules/keystrokes';
 
 import WordComponent from './typing-test/WordComponent'
@@ -53,6 +54,7 @@ export default {
   },
   data: function() {
     return {
+      started: false,
       words: [],
       input: '',
       wordIndex: 0,
@@ -100,7 +102,6 @@ export default {
       this.updateCaretPosition(charIndex);
     },
     onWordTyped: function(index, correct, typed) {
-      console.log('typed', correct, '"' + typed + '"');
       const islastWord = index >= this.words.length - 1;
 
       // Keystrokes
@@ -116,7 +117,6 @@ export default {
       if (islastWord) this.$emit('finished', this.keystrokes, this.corrections);
     },
     onWordCancelled: function(correct, typed) {
-      console.log('cancelled', correct, '"' + typed + '"');
       // Keystrokes
       const keystrokes = Keystrokes.get(this.language, typed) + 1;
 
@@ -146,6 +146,9 @@ export default {
         if (this.input === ' ') return (this.input = '');
         // Space - Character in input
         ++this.wordIndex;
+      } else if (!this.started) {
+        this.started = true;
+        this.$emit('started', moment());
       }
     },
     onKeydown: function(e) {
