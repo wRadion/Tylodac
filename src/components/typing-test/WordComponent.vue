@@ -74,8 +74,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-$font-size: 25px;
-$char-width: 15px;
+@import '/scss/variables.scss';
 
 .word.first { margin-left: $char-width; }
 .word + .word { margin-left: $char-width; }
@@ -90,14 +89,15 @@ $char-width: 15px;
   line-height: 40px;
 
   span { font: inherit; }
-  .error { color: #CC222299; text-decoration: underline dotted; }
+  .error { color: $fg-error; text-decoration: underline dotted; }
 }
 
 .current .main, .current .error { color: #CCCCCC; text-decoration: none; }
-.wrong .main, .incorrect .main, .current.wrong .error { color: #FF4444; text-decoration: none; }
+.incorrect .main { color: $fg-incorrect; }
+.wrong .main, .current.wrong .error { color: $fg-wrong; text-decoration: none; }
 
 .correct .main {
-  color: #55FF33;
+  color: $fg-correct;
   animation: shine 0.75s ease-out 1;
 
   @keyframes shine {
@@ -107,7 +107,7 @@ $char-width: 15px;
     }
     100% {
       text-shadow: 0 0 0px transparent;
-      color: #55FF33;
+      color: $fg-correct;
     }
   }
 }

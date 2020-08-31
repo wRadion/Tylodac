@@ -1,10 +1,16 @@
 <template>
   <div>
+    <ResultComponent :style="resultStyle"
+                     :show="finished"
+                     :time="time"
+                     :words="words"
+                     :keystrokes="keystrokes"
+                     :corrections="corrections"></ResultComponent>
     <TypingTestComponent style="max-width: 1200px"
-                         :language="'english'"
+                         :language="language"
                          :text="generatedText"
                          @started="onStarted"
-                         @finished="onFinished" />
+                         @finished="onFinished"></TypingTestComponent>
   </div>
 </template>
 
@@ -13,61 +19,64 @@ import moment from 'moment';
 import seedRandom from 'seedrandom';
 import Words from '/modules/words';
 
+import ResultComponent from '/components/ResultComponent';
 import TypingTestComponent from '/components/TypingTestComponent';
 
 export default {
   components: {
+    ResultComponent,
     TypingTestComponent
   },
   name: 'HomeView',
   data: function() {
     return {
+      language: 'english',
       text: '',
-      startTime: null
+      startTime: null,
+      finished: false,
+      time: null,
+      words: {
+        correct: null,
+        incorrect: null
+      },
+      keystrokes: {
+        correct: null,
+        incorrect: null
+      },
+      corrections: null
     };
   },
   computed: {
     generatedText: function() {
       const rand = seedRandom('toto');
-      const words = Words.french.split('|');
+      const words = Words[this.language].split('|');
       var result = [];
 
-      for (let i = 0; i < 100; ++i) {
+      for (let i = 0; i < 10; ++i) {
         result.push(words[Math.floor(rand() * words.length)]);
       }
 
       return result.join(' ');
+    },
+    resultStyle: function() {
+      return { visibility: this.finished ? 'visible' : 'hidden' };
     }
   },
   methods: {
     onStarted: function(startTime) {
       this.startTime = startTime;
     },
-    onFinished: function(keystrokes, corrections) {
-      const time = moment.duration(moment() - this.startTime);
-      const wpm = (60 * (keystrokes.correct / 5)) / time.seconds();
-      const totalKeystrokes = keystrokes.correct + keystrokes.incorrect;
-      const accuracy = (keystrokes.correct * 100) / (totalKeystrokes + corrections);
+    onFinished: function(words, keystrokes, corrections) {
+      this.finished = true;
 
-      var timeString = '';
-      // Minutes
-      if (time.minutes() > 0) timeString += `${time.minutes()} min `;
-      // Seconds
-      timeString += time.seconds().toString().padStart(2, '0') + ' sec ';
-      // Milliseconds
-      timeString += time.milliseconds().toString().padStart(3, '0') + ' ms';
-
-      /*console.log(timeString);
-      console.log(Math.round(wpm) + ' WPM');
-      console.log(`${totalKeystrokes} (${keystrokes.correct} | ${keystrokes.incorrect})`);
-      console.log(accuracy.toFixed(2) + '% (' + corrections + ')');*/
+      this.time = moment.duration(moment() - this.startTime);
+      this.words = words;
+      this.keystrokes = keystrokes;
+      this.corrections = corrections;
     }
   }
 };
 </script>
 
 <style lang="scss" scoped>
-div {
-  margin-top: 280px;
-}
 </style>

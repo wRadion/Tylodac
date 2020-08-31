@@ -12,6 +12,7 @@
     "build-prod": "parcel build src/index.html"
   },
   "dependencies": {
+    "animate.css": "^4.1.0",
     "express": "^4.17.1",
     "js-cookie": "^2.2.1",
     "moment": "^2.27.0",

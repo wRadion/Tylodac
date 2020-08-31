@@ -60,6 +60,10 @@ export default {
       wordIndex: 0,
       inputIsFocused: true,
       caretTimeout: null,
+      wordsCount: {
+        correct: 0,
+        incorrect: 0
+      },
       keystrokes: {
         correct: 0,
         incorrect: 0
@@ -108,21 +112,25 @@ export default {
       const keystrokes = Keystrokes.get(this.language, typed) + (islastWord ? 0 : 1);
 
       if (correct) {
+        this.wordsCount.correct += 1;
         this.keystrokes.correct += keystrokes;
       } else {
+        this.wordsCount.incorrect += 1;
         this.keystrokes.incorrect += keystrokes;
       }
 
       // Last word typed
-      if (islastWord) this.$emit('finished', this.keystrokes, this.corrections);
+      if (islastWord) this.$emit('finished', this.wordsCount, this.keystrokes, this.corrections);
     },
     onWordCancelled: function(correct, typed) {
       // Keystrokes
       const keystrokes = Keystrokes.get(this.language, typed) + 1;
 
       if (correct) {
+        this.wordsCount.correct -= 1;
         this.keystrokes.correct -= keystrokes;
       } else {
+        this.wordsCount.incorrect -= 1;
         this.keystrokes.incorrect -= keystrokes;
       }
     },
@@ -177,7 +185,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-$char-width: 15px;
+@import '/scss/variables.scss';
 
 div {
   position: relative;
