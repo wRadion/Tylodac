@@ -1,6 +1,6 @@
 <template>
   <div id="login-wrapper">
-    <img src="/assets/logo.png" />
+    <img src="/assets/images/logo.png" />
     <form>
       <label>Username</label>
       <input v-model.trim="username"

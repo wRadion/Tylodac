@@ -1,40 +1,42 @@
 <template>
   <div class="result" :style="entranceStyle">
     <div class="wpm">{{ wpm || '?' }} WPM</div>
-    <table class="stats">
-      <tr>
-        <th>Time</th>
-        <td class="stat">{{ timeString || '?' }}</td>
-        <td>
-          <div class="small">{{ timeString || '?' }}</div>
-        </td>
-      </tr>
-      <tr>
-        <th>Words</th>
-        <td class="stat">{{ totalWords || '?' }}</td>
-        <td>
-          <div class="small">
-            <span v-show="words && words.correct" class="correct">{{ words.correct }} ✔</span>
-            <span v-show="words && words.incorrect" class="incorrect">{{ words.incorrect }} ✘</span>
-          </div>
-      </tr>
-      <tr>
-        <th>Keystrokes</th>
-        <td class="stat">{{ totalKeystrokes || '?' }}</td>
-        <td>
-          <div class="small">
-            <span v-show="keystrokes && keystrokes.correct" class="correct">{{ keystrokes.correct || '?' }} ✔</span>
-            <span v-show="keystrokes && keystrokes.incorrect" class="incorrect">{{ keystrokes.incorrect || '?' }} ✘</span>
-          </div>
-      </tr>
-      <tr>
-        <th>Accuracy</th>
-        <td class="stat">{{ accuracy || '?' }}%</td>
-        <td>
-          <div class="small">{{ corrections || '?' }} corrections</div>
-        </td>
-      </tr>
-    </table>
+    <div class="table-wrapper">
+      <table class="stats">
+        <tr>
+          <th>Time</th>
+          <td class="stat">{{ timeString || '?' }}</td>
+          <td>
+            <div class="small">{{ timeString || '?' }}</div>
+          </td>
+        </tr>
+        <tr>
+          <th>Words</th>
+          <td class="stat">{{ totalWords || '?' }}</td>
+          <td>
+            <div class="small">
+              <span v-show="words && words.correct" class="correct">{{ words.correct }} ✔</span>
+              <span v-show="words && words.incorrect" class="incorrect">{{ words.incorrect }} ✘</span>
+            </div>
+        </tr>
+        <tr>
+          <th>Keystrokes</th>
+          <td class="stat">{{ totalKeystrokes || '?' }}</td>
+          <td>
+            <div class="small">
+              <span v-show="keystrokes && keystrokes.correct" class="correct">{{ keystrokes.correct }} ✔</span>
+              <span v-show="keystrokes && keystrokes.incorrect" class="incorrect">{{ keystrokes.incorrect }} ✘</span>
+            </div>
+        </tr>
+        <tr>
+          <th>Accuracy</th>
+          <td class="stat">{{ accuracy || '?' }}%</td>
+          <td>
+            <div class="small">{{ corrections || '0' }} correction{{ corrections !== 1 ? 's' : '' }}</div>
+          </td>
+        </tr>
+      </table>
+    </div>
   </div>
 </template>
 
@@ -108,18 +110,20 @@ export default {
 }
 
 .wpm, .stat {
-  color: #CCCCCC;
   text-shadow: 2px 2px #191919;
+}
+
+.wpm, .table-wrapper {
+  box-shadow: 0px 0px 8px #00000044;
 }
 
 .result {
   width: 360px;
   height: 206px;
   margin: auto;
-  margin-top: 32px;
-  margin-bottom: 32px;
+  margin-top: 40px;
+  margin-bottom: 40px;
   border-radius: 4px;
-  background: #303030;
 
   .wpm {
     width: 100%;
@@ -127,34 +131,41 @@ export default {
     font-size: 32px;
     font-weight: bold;
     text-align: center;
+    margin-bottom: 8px;
     padding: 10px 0;
-    border-bottom: 6px solid #202020;
+    color: #DDDDDD;
+    background: #404040;
+    border-radius: 4px 4px 0 0;
   }
 
-  table {
+  .table-wrapper {
     width: 100%;
-    margin: 0;
-    margin-top: 8px;
-    padding: 0;
-    line-height: 28px;
-    color: #AAAAAA;
-    border-collapse: collapse;
+    padding: 6px 16px;
+    background: #303030;
+    border-radius: 0 0 4px 4px;
 
-    th {
-      padding-left: 16px;
-      font-weight: 500;
-      text-align: left;
-    }
+    table {
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      line-height: 28px;
+      color: #AAAAAA;
+      border-collapse: collapse;
 
-    .stat {
-      font-weight: 500;
-      text-align: right;
-    }
+      th {
+        font-weight: 500;
+        text-align: left;
+      }
 
-    td {
-      padding-right: 16px;
-      text-align: right;
-    }
+      .stat {
+        color: #CCCCCC;
+        font-weight: 500;
+        text-align: right;
+      }
+
+      td {
+        text-align: right;
+      }
   }
 
   .correct, .incorrect {
@@ -170,5 +181,7 @@ export default {
     color: $fg-incorrect;
     background-color: #FF000011;
   }
+  }
+
 }
 </style>

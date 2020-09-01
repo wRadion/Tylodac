@@ -1,8 +1,8 @@
 <template>
   <div id="header-div">
-    <router-link v-bind:to="{ name: 'home' }">
+    <router-link :to="{ name: 'home' }">
       <div id="header-logo">
-        <img src="/assets/logo.png" />
+        <img src="/assets/images/logo.png" />
         <span><strong>Tylodac</strong></span>
       </div>
     </router-link>
@@ -11,7 +11,7 @@
         Connected as: <strong>{{ this.username }}</strong>
       </span>
       <button @click.prevent="logout">
-        Logout
+        <i class="fa fa-sign-out"></i>Logout
       </button>
     </div>
   </div>
@@ -45,12 +45,14 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import '/scss/fork-awesome.min.scss';
+
 $height: 48px;
 
 #header-div {
   height: $height;
   background: #292929;
-  box-shadow: 0px 0px 8px 4px #111111;
+  box-shadow: 0px 0px 12px #00000044;
   padding: 0 16px;
   line-height: $height;
 
@@ -79,9 +81,13 @@ $height: 48px;
       color: #CCCCCC;
     }
 
-    button {
-      padding-top: 4px;
-      padding-bottom: 4px;
+    button, button i {
+      color: #CCCCCC;
+      line-height: 16px;
+    }
+
+    i {
+      margin-right: 4px;
     }
   }
 }
