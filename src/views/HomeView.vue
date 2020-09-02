@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="wrapper">
-      <router-link :to="{ name: 'solo' }">
+      <router-link :to="{ name: 'solo-settings' }">
         <img src="/assets/images/singleplayer.png" class="soloplayer" />
         <div>Soloplayer</div>
       </router-link>
@@ -46,7 +46,8 @@ a {
   text-decoration: none;
   text-align: center;
   transform: scale(1);
-  transition: transform 0.3s ease;
+  box-shadow: 0px 0px 8px #00000044;
+  transition: transform 0.1s ease;
 
   img, div {
     position: absolute;

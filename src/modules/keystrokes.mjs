@@ -12,12 +12,13 @@ export default {
     keystrokes += match(word, /[A-Z]/g) * 2;
 
     switch (language) {
+      case 'code':
       case 'english':
         keystrokes += match(word, /[0-9-=\[\]'\\,.\/`]/g) * 1;
         keystrokes += match(word, /[~!@#$%^&*()_+{}"|?>]/g) * 2;
         break;
       case 'french':
-        keystrokes += match(word, /[²&é"'(-è_çà)=$ù*,;:!<\/+]/g) * 1;
+        keystrokes += match(word, /[²&é"'\(è_çà\)=$ù*,;:!<\/+-]/g) * 1;
         keystrokes += match(word, /[0-9°¨£%µ?.§>âêûîô€]/g) * 2;
         keystrokes += match(word, /[äëÿüïöÄËÜÏÖÂÊÛÎÔìò]/g) * 3;
         keystrokes += match(word, /[ÀÈÙÌÒÇÉ]/g) * 4;

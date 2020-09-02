@@ -14,8 +14,8 @@
            autofocus>
 
     <!-- WORDS -->
-    <div class="words">
-      <WordComponent v-for="(word, index) in this.words" :key="'word' + index"
+    <div ref="words" class="words">
+      <WordComponent v-for="(word, index) in this.words" :key="'word-' + word + '-' + index"
                      :ref="'word-' + index"
                      :word="word"
                      :index="index"
@@ -60,19 +60,10 @@ export default {
       wordIndex: 0,
       inputIsFocused: true,
       caretTimeout: null,
-      wordsCount: {
-        correct: 0,
-        incorrect: 0
-      },
-      keystrokes: {
-        correct: 0,
-        incorrect: 0
-      },
+      wordsCount: { correct: 0, incorrect: 0 },
+      keystrokes: { correct: 0, incorrect: 0 },
       corrections: 0
     }
-  },
-  beforeMount: function() {
-    if (this.text) this.text.split(' ').forEach(word => this.words.push(word));
   },
   mounted: function() {
     window.addEventListener('resize', this.updateCaretPosition);
@@ -86,6 +77,21 @@ export default {
     }
   },
   watch: {
+    text: function(newValue, oldValue) {
+      if (newValue.length > 0) {
+        this.started = false;
+        this.words = [];
+        this.input = '';
+        this.wordIndex = 0;
+        this.inputIsFocused = true;
+        this.caretTimeout = null;
+        this.wordsCount = { correct: 0, incorrect: 0 };
+        this.keystrokes = { correct: 0, incorrect: 0 };
+        this.corrections = 0;
+        newValue.split(' ').forEach(word => this.words.push(word));
+        this.resetCaretPosition();
+      }
+    },
     input: function(newValue, oldValue) {
       if (this.finished) return;
 
@@ -95,6 +101,9 @@ export default {
     }
   },
   methods: {
+    focus: function() {
+      this.$refs.input.focus();
+    },
     onCharIndexChanged: function(charIndex) {
       if (this.finished) return;
 
@@ -136,6 +145,10 @@ export default {
     },
     getRefWord: function(index) {
       return this.$refs['word-' + index][0];
+    },
+    resetCaretPosition: function() {
+      this.$refs.caret.style.left = '0px';
+      this.$refs.caret.style.top = '0px';
     },
     updateCaretPosition: function(charIndex) {
       if (this.finished) return;

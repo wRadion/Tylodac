@@ -41,20 +41,29 @@ label {
   color: #AAAAAA;
 }
 
-input, button {
+input, button, select, option {
   padding: 8px;
   border: 1px solid transparent;
   border-radius: 4px;
   outline: none;
 }
 
-input:focus {
+select:focus {
+  border-radius: 4px 4px 0 0;
+}
+
+input:focus, button:focus, select:focus {
   border: 1px solid #FFFFFFAA;
 }
 
-input[type=text] {
+input[type=text], input[type=number], select {
   color: #999999;
   background: #111111;
+}
+
+option[disabled] {
+  color: #494949;
+  background: #090909;
 }
 
 button, input[type=submit] {
@@ -81,5 +90,36 @@ input.error, button.error {
   margin-top: 12px;
   color: #FF2222;
   font-size: 14px;
+}
+
+.buttons {
+  width: 100px;
+  margin: auto;
+  margin-bottom: 32px;
+
+  button, a {
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    margin: 0;
+    padding: 0;
+    font-size: 24px;
+    text-align: center;
+    background: #191919;
+    border: 1px solid transparent;
+    box-shadow: 0px 0px 4px #FFFFFF11;
+    border-radius: 4px;
+    i { color: #666666; }
+  }
+
+  button:hover, a:hover {
+    background: #1F1F1F;
+    i { color: #777777; }
+  }
+
+  button:focus, a:focus {
+    border: 1px solid #FFFFFFAA;
+  }
 }
 </style>

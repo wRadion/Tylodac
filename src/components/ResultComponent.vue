@@ -1,5 +1,5 @@
 <template>
-  <div class="result" :style="entranceStyle">
+  <div class="result" :style="style">
     <div class="wpm">{{ wpm || '?' }} WPM</div>
     <div class="table-wrapper">
       <table class="stats">
@@ -46,9 +46,14 @@ const entranceAnimations = [
   'bounceInDown', 'bounceInLeft', 'bounceInRight', 'bounceIn',
   'fadeInDown',   'fadeInLeft',   'fadeInRight',   'fadeIn',
   'zoomInDown',   'zoomInLeft',   'zoomInRight',   'zoomIn', 'zoomInUp',
-  'rotateInDownLeft', 'rotateInDownRight',
-  'lightSpeedInLeft', 'lightSpeedInRight',
   'flipInX', 'flipInY', 'jackInTheBox'
+];
+const exitAnimations = [
+  'backOutUp',   'backOutLeft',   'backOutRight',
+  'bounceOutUp', 'bounceOutLeft', 'bounceOutRight', 'bounceOut',
+  'fadeOutUp',   'fadeOutLeft',   'fadeOutRight',   'fadeOut',
+  'zoomOutUp',   'zoomOutLeft',   'zoomOutRight',   'zoomOut',
+  'flipOutX',    'flipOutY'
 ];
 
 export default {
@@ -61,9 +66,10 @@ export default {
     corrections: Number
   },
   computed: {
-    entranceStyle: function() {
-      if (!this.show) return null;
-      const randomAnimation = entranceAnimations[Math.floor(Math.random() * entranceAnimations.length)];
+    style: function() {
+      var randomAnimation = null;
+      if (!this.show) randomAnimation = exitAnimations[Math.floor(Math.random() * exitAnimations.length)];
+      else randomAnimation = entranceAnimations[Math.floor(Math.random() * entranceAnimations.length)];
       return { animation: randomAnimation + ' 1s ease 1' };
     },
     timeString: function() {

@@ -11,7 +11,7 @@ export default {
     "sans|savoir|se|sembler|sentir|seul|si|son|soir|sortir|sous|sur|tant|te|temps|tenir|terre|tête|toi|ton|" +
     "toujours|tout|très|trois|trop|trouver|tu|un|venir|vers|vie|vieux|ville|vingt|vivre|voir|voix|vouloir|" +
     "votre|vous|y|yeux",
-   english: "about|above|add|after|again|air|all|almost|along|also|always|America|an|and|animal|another|answer|" +
+  english: "about|above|add|after|again|air|all|almost|along|also|always|America|an|and|animal|another|answer|" +
     "any|are|around|as|ask|at|away|back|be|because|been|before|began|begin|being|below|between|big|book|both|boy|" +
     "but|by|call|came|can|car|carry|change|children|city|close|come|could|country|cut|day|did|different|do|does|don't|" +
     "down|each|earth|eat|end|enough|even|every|example|eye|face|family|far|father|feet|few|find|first|follow|food|for|" +
@@ -24,5 +24,16 @@ export default {
     "see|seem|sentence|set|she|should|show|side|small|so|some|something|sometimes|song|soon|sound|spell|start|state|still|" +
     "stop|story|study|such|take|talk|tell|than|that|the|their|them|then|there|these|they|thing|think|this|those|thought|three|" +
     "through|time|to|together|too|took|tree|try|turn|two|under|until|up|us|use|very|walk|want|was|watch|water|way|we|well|went|" +
-    "were|what|when|where|which|while|white|who|why|will|with|without|word|work|world|would|write|year|you|young|your"
+    "were|what|when|where|which|while|white|who|why|will|with|without|word|work|world|would|write|year|you|young|your",
+  code: "function|this|private|public|abstract|class|interface|struct|console|index|count|length|string|int|integer|float|" +
+    "char|character|bool|boolean|var|let|const|static|method|object|null|new|while|for|foreach|if|else|then|else if|break|" +
+    "continue|return|switch|case|get|set|save|write|read|file|list|array|map|set|queue|stack|exception|error|throw|try|catch|" +
+    "finally|when|key|value|size|user|server|client|log|match|contains|include|require|valid|accept|listen|cd|ls|rm|git|git commit|" +
+    "git add|git checkout|git push origin master|git push|git reset|git pull|git diff|git log|git rm|git init|init|make|configure|" +
+    "config|start|end|begin|do|production|development|dev|program|programming|test|run|exec|echo|cat|docker|sudo|root|bash|sh|self|" +
+    "data|res|install|add|remove|delete|del|create|show|update|select|insert|search|filter|find|database|db|str|txt|in|input|output|" +
+    "out|ref|default|empty|func|fun|def|define|other|extends|implements|factory|builder|rec|element|obj|math|convert|source|build|id|" +
+    "version|module|main|name|super|base|type|push|pop|reduce|sum|average|args|arg|param|params|enum|wait|async|task|local|localhost|" +
+    "token|post|request|req|retry|instance|and|or|send|receive|use|item|todo|api|url|uri|link|clear|hash|email|password|description|" +
+    "service|event|message|hello world|debug|print|close|exit|load"
 }
