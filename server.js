@@ -1,61 +1,47 @@
 const io = require('socket.io')();
-const clientsManager = require('./server/clients_manager.js');
-
 const port = 4321;
+const redis = require('redis').createClient();
 
+/* REDIS */
+redis.on('ready', () => console.log('redis is ready'));
+redis.on('error', (error) => console.error(error));
+
+/* UTILS */
 function getSessionIdCookie(socket) {
   const cookies = socket.handshake.headers.cookie;
-  // No cookies
-  if (!cookies) return null;
-
+  if (!cookies) return null; // No cookies
   const match = cookies.match(/sessionId=([^;]+)/);
-  // No sessionId
-  if (!match) return null;
-
+  if (!match) return null; // No sessionId
   return match[1];
 }
 
+/* GLOBAL CONTEXT */
+const SessionsManager = require('./server/global/sessions_manager.js');
+const ClientsManager = require('./server/global/clients_manager.js');
+const RoomsManager = require('./server/global/rooms_manager.js');
+
+$sessionsManager = new SessionsManager(redis);
+$clientsManager = new ClientsManager($sessionsManager);
+$roomsManager = new RoomsManager();
+
+const $store = {
+  sessionsManager: $sessionsManager,
+  clientsManager: $clientsManager,
+  roomsManager: $roomsManager
+};
+
+/* CLIENT CONTEXT */
+const connectionEvents = require('./server/client/connection_events.js');
+const multiRoomsEvents = require('./server/client/multi/rooms_events.js');
+
 io.on('connection', (socket) => {
-  const sessionId = getSessionIdCookie(socket);
-  var client = null;
-
-  function connectClient(clientData) {
-    client = clientData;
-    console.log('Client connected', client.username);
-
-    /* Event Handlers */
-    socket.on('client_username', (res) => {
-      res(client.username);
-      console.log('Client username', client.username);
-    });
-
-    socket.on('disconnect', () => {
-      clientsManager.disconnect(client.sessionId);
-      console.log('Client disconnected', client.username);
-    });
-
-    socket.on('client_logout', (res) => {
-      clientsManager.logout(client.sessionId, () => res(true));
-      console.log('Client logout', client.username);
-    });
-  }
-
-  if (!sessionId) {
-    /* Client (No Login) */
-    socket.on('client_login', (username, res) => {
-      clientsManager.login(username, (clientData) => {
-        res(clientData.sessionId);
-        console.log('Client login', clientData.username);
-        connectClient(clientData);
-      });
-    });
-  } else {
-    /* Client (Login) */
-    clientsManager.connect(sessionId, (clientData) => {
-      connectClient(clientData);
-    });
-  }
+  const store = {
+    sessionId: getSessionIdCookie(socket)
+  };
+  connectionEvents.registerEvents($store, socket, store);
+  multiRoomsEvents.registerEvents($store, socket, store);
 });
 
+/* SERVER CONTEXT */
 console.log('listening on port ' + port + '...');
 io.listen(port);

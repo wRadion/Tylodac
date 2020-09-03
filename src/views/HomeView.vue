@@ -5,7 +5,7 @@
         <img src="/assets/images/singleplayer.png" class="soloplayer" />
         <div>Soloplayer</div>
       </router-link>
-      <router-link :to="{ name: 'multi' }">
+      <router-link :to="{ name: 'multi-rooms' }">
         <img src="/assets/images/multiplayer.png" class="multiplayer" />
         <div>Multiplayer</div>
       </router-link>

@@ -10,10 +10,14 @@ import LoginView from './views/LoginView';
 import HomeView from './views/HomeView';
 import NotFoundView from './views/NotFoundView';
 
+import HeaderComponent from './components/HeaderComponent';
+
 import SoloGameView from './views/solo/SoloGameView';
 import SoloSettingsView from './views/solo/SoloSettingsView';
 
-import HeaderComponent from './components/HeaderComponent';
+import MultiRoomsView from './views/multi/MultiRoomsView';
+import MultiRoomCreateView from './views/multi/MultiRoomCreateView';
+import MultiGameView from './views/multi/MultiGameView';
 
 Vue.use(VueRouter);
 
@@ -36,7 +40,10 @@ const router = new VueRouter({
     { path: '*', component: NotFoundView },
     defaultRoute('/', 'home', HomeView),
     defaultRoute('/solo/game', 'solo-game', SoloGameView),
-    defaultRoute('/solo/settings', 'solo-settings', SoloSettingsView)
+    defaultRoute('/solo/settings', 'solo-settings', SoloSettingsView),
+    defaultRoute('/multi/rooms', 'multi-rooms', MultiRoomsView),
+    defaultRoute('/multi/rooms/create', 'multi-room-create', MultiRoomCreateView),
+    defaultRoute('/multi/room/:id', 'multi-room', MultiGameView)
   ]
 });
 

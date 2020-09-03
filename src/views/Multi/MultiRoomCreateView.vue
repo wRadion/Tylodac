@@ -1,5 +1,5 @@
 <template>
-  <SettingsComponent :multi="false" @submit="onSubmit" style="width: 360px"></SettingsComponent>
+  <SettingsComponent :multi="true" @submit="onSubmit" style="width:500px"></SettingsComponent>
 </template>
 
 <script>
@@ -9,10 +9,11 @@ export default {
   components: {
     SettingsComponent
   },
-  name: 'SoloSettingsView',
+  name: 'MultiRoomCreateView',
   methods: {
     onSubmit: function(params) {
-      this.$router.push({ name: 'solo-game', query: params });
+      this.$socket.emit('client_multi_rooms_create', params);
+      this.$router.push({ name: 'multi-room' });
     }
   }
 };

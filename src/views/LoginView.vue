@@ -57,8 +57,9 @@ export default {
   methods: {
     validateUsername: function() {
       this.error = null;
-      if (this.username.length >= 3 && this.username.length <= 16) return;
-      this.error = 'Username must be between 3 and 16 characters long';
+      if (!this.username.match(/^[a-zA-Z0-9_-]{3,16}$/)) {
+        this.error = 'Username must be between 3 and 16 characters long and must contains only alphanumeric caracters.'
+      }
     },
     login: function() {
       if (this.hasError) return;

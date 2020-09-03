@@ -60,11 +60,11 @@ export default {
   },
   methods: {
     generateText: function() {
-      const count = this.$route.query.count;
+      const wordCount = this.$route.query.wordCount;
       const words = Words[this.$route.query.lang].split('|');
       var result = [];
 
-      for (let i = 0; i < count; ++i) {
+      for (let i = 0; i < wordCount; ++i) {
         result.push(words[Math.floor(Math.random() * words.length)]);
       }
 
