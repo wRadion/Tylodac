@@ -4,8 +4,9 @@ function removeOnlineClient(onlineClients, sessionId) { onlineClients.splice(get
 
 /* CLASS */
 module.exports = class ClientsManager {
-  constructor(sessionsManager) {
+  constructor(sessionsManager, roomsManager) {
     this.sessionsManager = sessionsManager;
+    this.roomsManager = roomsManager;
     this.onlineClients = [];
   }
 
@@ -17,7 +18,7 @@ module.exports = class ClientsManager {
 
   logout(sessionId, callback) {
     this.sessionsManager.deleteSession(sessionId, () => {
-      removeOnlineClient(this.onlineClients, sessionId);
+      this.disconnectClient(sessionId);
       callback();
     });
   }
@@ -40,6 +41,7 @@ module.exports = class ClientsManager {
       // Client is not connected
       return;
     }
+    this.roomsManager.leaveRoom(sessionId);
     removeOnlineClient(this.onlineClients, sessionId);
   }
 }

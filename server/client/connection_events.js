@@ -1,35 +1,35 @@
-module.exports.registerEvents = function($store, socket, store) {
+module.exports.registerEvents = function($global, client) {
   function connectClient(clientData) {
-    Object.assign(store, clientData);
-    console.log('Client connected', store.username);
+    Object.assign(client, clientData);
+    console.log('Client connected', client.username);
 
     /* Event Handlers */
-    socket.on('client_username', (res) => {
-      res(store.username);
-      console.log('Client username', store.username);
+    client.socket.on('client_username', (res) => {
+      res(client.username);
+      console.log('Client username', client.username);
     });
 
-    socket.on('disconnect', () => {
-      $store.clientsManager.disconnectClient(store.sessionId);
-      console.log('Client disconnected', store.username);
+    client.socket.on('disconnect', () => {
+      $global.clientsManager.disconnectClient(client.sessionId);
+      console.log('Client disconnected', client.username);
     });
 
-    socket.on('client_logout', (res) => {
-      $store.clientsManager.logout(store.sessionId, () => res(true));
-      console.log('Client logout', store.username);
+    client.socket.on('client_logout', (res) => {
+      $global.clientsManager.logout(client.sessionId, () => res(true));
+      console.log('Client logout', client.username);
     });
   }
 
-  if (!store.sessionId) { /* Client (No Login) */
-    socket.on('client_login', (username, res) => {
-      $store.clientsManager.login(username, (clientData) => {
+  if (!client.sessionId) { /* Client (No Login) */
+    client.socket.on('client_login', (username, res) => {
+      $global.clientsManager.login(username, (clientData) => {
         res(clientData.sessionId);
         console.log('Client login', clientData.username);
         connectClient(clientData);
       });
     });
   } else { /* Client (Login) */
-    $store.clientsManager.connectClient(store.sessionId, (clientData) => {
+    $global.clientsManager.connectClient(client.sessionId, (clientData) => {
       connectClient(clientData);
     });
   }

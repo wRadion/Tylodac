@@ -21,10 +21,10 @@ const ClientsManager = require('./server/global/clients_manager.js');
 const RoomsManager = require('./server/global/rooms_manager.js');
 
 $sessionsManager = new SessionsManager(redis);
-$clientsManager = new ClientsManager($sessionsManager);
-$roomsManager = new RoomsManager();
+$roomsManager = new RoomsManager(io);
+$clientsManager = new ClientsManager($sessionsManager, $roomsManager);
 
-const $store = {
+const $global = {
   sessionsManager: $sessionsManager,
   clientsManager: $clientsManager,
   roomsManager: $roomsManager
@@ -35,11 +35,12 @@ const connectionEvents = require('./server/client/connection_events.js');
 const multiRoomsEvents = require('./server/client/multi/rooms_events.js');
 
 io.on('connection', (socket) => {
-  const store = {
+  const client = {
+    socket,
     sessionId: getSessionIdCookie(socket)
   };
-  connectionEvents.registerEvents($store, socket, store);
-  multiRoomsEvents.registerEvents($store, socket, store);
+  connectionEvents.registerEvents($global, client);
+  multiRoomsEvents.registerEvents($global, client);
 });
 
 /* SERVER CONTEXT */

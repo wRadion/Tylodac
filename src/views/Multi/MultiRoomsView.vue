@@ -16,7 +16,7 @@
             :key="index + '-' + room.creator"
             @click="joinRoom(room.id)">
           <td class="creator">{{ room.creator }}</td>
-          <td class="language">{{ room.language }}</td>
+          <td class="language">{{ room.lang }}</td>
           <td class="players">{{ room.players }}</td>
         </tr>
       </table>
@@ -33,6 +33,12 @@ export default {
     }
   },
   beforeMount: function() {
+    this.$socket.emit('client_lobby_join');
+  },
+  sockets: {
+    server_multi_rooms_list_update: function(rooms) {
+      this.rooms = rooms;
+    }
   },
   methods: {
     joinRoom: function(roomId) {

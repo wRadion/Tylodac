@@ -12,8 +12,9 @@ export default {
   name: 'MultiRoomCreateView',
   methods: {
     onSubmit: function(params) {
-      this.$socket.emit('client_multi_rooms_create', params);
-      this.$router.push({ name: 'multi-room' });
+      this.$socket.emit('client_multi_rooms_create', params, (roomId) => {
+        this.$router.push({ name: 'multi-room', params: { id: roomId }});
+      });
     }
   }
 };

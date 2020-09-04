@@ -2,8 +2,8 @@ const { v4: uuidv4 } = require('uuid');
 
 /* CLASS */
 module.exports = class SessionsManager {
-  constructor($redis) {
-    this.redis = $redis;
+  constructor(redis) {
+    this.redis = redis;
   }
 
   createSession(sessionData, callback) {

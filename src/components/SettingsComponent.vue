@@ -61,10 +61,10 @@
           </label>
         </div>
         <div>
-          <label>Players</label>
-          <input v-model="playerCount" type="number" autocomplete="off" :class="{ error: this.hasPlayersError }">
+          <label>MaxPlayersCount</label>
+          <input v-model="maxPlayerCount" type="number" autocomplete="off" :class="{ error: this.hasMaxPlayersCountError }">
         </div>
-        <div v-if="this.hasPlayersError" class="error-message">{{ this.playersError }}</div>
+        <div v-if="this.hasMaxPlayersCountError" class="error-message">{{ this.maxPlayerCountError }}</div>
       </template>
       <div>
         <input @click.prevent="onSubmit" type="submit" :value="multi ? 'Create Room' : 'Type!'">
@@ -93,7 +93,7 @@ export default {
       roundCount: 1, // multiMode = rounds
       timeAttack: 300, // multiMode = timeAttack
       publicRoom: true,
-      playerCount: 8,
+      maxPlayerCount: 8,
       modeError: null,
       multiModeError: null
     }
@@ -115,15 +115,15 @@ export default {
       this.multiModeError = null;
       if (newValue <= 0) this.multiModeError = 'Time Attack must be greater than 0';
     },
-    playerCount: function(newValue, oldValue) {
-      this.playersError = null;
-      if (newValue <= 0) this.playersError = 'Player count must be greater than 0';
+    maxPlayerCount: function(newValue, oldValue) {
+      this.maxPlayerCountError = null;
+      if (newValue <= 0) this.maxPlayerCountError = 'Player count must be greater than 0';
     },
   },
   computed: {
     hasModeError: function() { return !!this.modeError; },
     hasMultiModeError: function() { return !!this.multiModeError; },
-    hasPlayersError: function() { return !!this.playersError; },
+    hasMaxPlayersCountError: function() { return !!this.maxPlayerCountError; },
     availableLanguages: function() { return Object.keys(Words); }
   },
   methods: {
@@ -137,12 +137,13 @@ export default {
       }
 
       if (this.multi) {
+        params.multiMode = this.multiMode;
         switch (this.multiMode) {
           case 'rounds': params.roundCount = this.roundCount; break;
           case 'timeAttack': params.timeAttack = this.timeAttack; break;
         }
         params.publicRoom = this.publicRoom;
-        params.playerCount = this.playerCount;
+        params.maxPlayerCount = this.maxPlayerCount;
       }
 
       this.$emit('submit', params);
